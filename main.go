@@ -1,30 +1,32 @@
 package main
 
-import
-(
-	"os"
+import (
 	"github.com/atotto/clipboard"
-	"github.com/markoczy/goutil/log"
 	"github.com/markoczy/gotext/handler"
+	"github.com/markoczy/goutil/log"
+	"github.com/markoczy/goutil/log/logconfig"
+	"os"
 )
 
 func main() {
-	var clip, err = clipboard.ReadAll();
+	logconfig.SetDefaultLogLevel(logconfig.ERROR)
+
+	var clip, err = clipboard.ReadAll()
 	if err != nil {
-		log.Error("Something went wrong: "+err.Error())
+		log.Error("Something went wrong: " + err.Error())
 		return
 	}
-	
+
 	s, err := handler.Exec(os.Args[1:], clip)
 	if err != nil {
-		log.Error("Something went wrong: "+err.Error())
+		log.Error("Something went wrong: " + err.Error())
 		return
 	}
 
 	if s != nil {
 		log.Debug("New Value found, writing")
-		clipboard.WriteAll(*s) 
+		clipboard.WriteAll(*s)
 	}
 
-	log.Debug("Nomal Exit")
+	log.Debug("Normal Exit")
 }

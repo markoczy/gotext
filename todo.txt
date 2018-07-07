@@ -1,0 +1,35 @@
+************************************************************
+* TextTools by A. Markoczy
+************************************************************
+*
+**** Help section ****
+*
+* Single Commands:
+*
+* u                : UPPERCASE => DONE
+* l                : lowercase => DONE
+* c                : Clear formatting => DONE
+* sort             : Sort (alt: 'o') => DONE
+* rdup             : remove all duplicates (alt: 'rd') => DONE
+* b64c             : Base64 encode (alt: 'bc') => OBS
+* b64d             : Base64 decode (alt: 'bd') => OBS
+* filter [txt]     : Select lines with [txt] (alt: 'f') => DONE
+* filterx [txt]    : Select lines with [txt] (alt: 'f') => DONE
+* pre [txt]        : prefix [txt] by line (alt: 'p') => DONE
+* post [txt]       : suffix [txt] by line (alt: 's') => DONE
+* ts [txt]         : trim start to end of [txt] by line => DONE
+* tsx [txt]        : trim start to start of [txt] by line => DONE
+* te [txt]         : trim end to start of [txt] by line => DONE
+* tex [txt]        : trim end to end of [txt] by line => DONE
+* save [path]      : Clipboard to file (alt 'sv') => DONE
+* load [path]      : File to clipbooard (alt 'ld') => DONE
+* qs [name]        : Quicksave (save to temp file) => DONE
+* ql [name]        : Quickload (load from temp file) => DONE
+* r [in] [out]     : replace all [in] with [out] => DONE
+* i [txt] [num]    : insert [num] of [txt] => CHANGED TO INVERT
+
+New Functions:
+
+rt                 : Replace Transform newline => DONE
+rx                 : Replace using regeX => DONE
+rxt, rtx           : Replace Transform newline using regeX => DONE
