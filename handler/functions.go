@@ -14,7 +14,7 @@ var xNewLine = regexp.MustCompile("\r?\n")
 
 func save(s []string) (interface{}, error) {
 	log.Debug("Entry save")
-	err := ioutil.WriteFile(s[1], []byte(s[2]), 0644)
+	err := ioutil.WriteFile(s[1], []byte(s[2]), 0666)
 	if err != nil {
 		return nil, err
 	}
@@ -32,8 +32,13 @@ func load(s []string) (interface{}, error) {
 
 func quicksave(s []string) (interface{}, error) {
 	log.Debug("Entry save")
-	path := path.Join(os.TempDir(), s[1])
-	err := ioutil.WriteFile(path, []byte(s[2]), 0644)
+	filepath := path.Join(os.TempDir(), "gotext")
+	_, err := os.Stat(filepath)
+	if os.IsNotExist(err) {
+		os.Mkdir(filepath, 0644)
+	}
+	filepath = path.Join(filepath, s[1])
+	err = ioutil.WriteFile(filepath, []byte(s[2]), 0666)
 	if err != nil {
 		return nil, err
 	}
@@ -42,7 +47,7 @@ func quicksave(s []string) (interface{}, error) {
 
 func quickload(s []string) (interface{}, error) {
 	log.Debug("Entry save")
-	path := path.Join(os.TempDir(), s[1])
+	path := path.Join(os.TempDir(), "gotext", s[1])
 	dat, err := ioutil.ReadFile(path)
 	if err != nil {
 		return nil, err

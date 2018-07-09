@@ -22,7 +22,11 @@ func Exec(args []string, input string) (*string, error) {
 
 	lArgs := append(args, input)
 	ifc, err := cmdParser.Exec(lArgs)
+	if err != nil {
+		return nil, err
+	}
 	ret := ifc.(string)
+
 	return &ret, err
 }
 
