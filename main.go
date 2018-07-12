@@ -11,10 +11,12 @@ import (
 func main() {
 	logconfig.SetDefaultLogLevel(logconfig.ERROR)
 
-	var clip, err = clipboard.ReadAll()
+	var clip *string
+	read, err := clipboard.ReadAll()
 	if err != nil {
-		log.Error("Something went wrong: " + err.Error())
-		return
+		log.Debug("Clipboard not available: " + err.Error())
+	} else {
+		clip = &read
 	}
 
 	s, err := handler.Exec(os.Args[1:], clip)

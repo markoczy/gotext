@@ -10,7 +10,7 @@ import (
 var cmdParser = initParser()
 
 // Exec ...
-func Exec(args []string, input string) (*string, error) {
+func Exec(args []string, input *string) (*string, error) {
 	log.Debugf("Command array: %v\n", args)
 	log.Debugf("Input: %s\n", input)
 
@@ -20,7 +20,10 @@ func Exec(args []string, input string) (*string, error) {
 		return nil, nil
 	}
 
-	lArgs := append(args, input)
+	var lArgs []string
+	if input != nil {
+		lArgs = append(args, *input)
+	}
 	ifc, err := cmdParser.Exec(lArgs)
 	if err != nil {
 		return nil, err
