@@ -67,145 +67,136 @@ func lowercase(s []string) (interface{}, error) {
 
 func filter(s []string) (interface{}, error) {
 	log.Debug("Entry filter")
-	var strs []string
-	split := xNewLine.Split(s[2], -1)
+	strs := []string{}
+	split, sep := split(s[2])
 	for _, e := range split {
 		if strings.Index(e, s[1]) > -1 {
 			strs = append(strs, e)
 		}
 	}
-	return strings.Join(strs, "\n"), nil
+	return strings.Join(strs, sep), nil
 }
 
 func filterExclusive(s []string) (interface{}, error) {
 	log.Debug("Entry filter")
-	var strs []string
-	split := xNewLine.Split(s[2], -1)
+	strs := []string{}
+	split, sep := split(s[2])
 	for _, e := range split {
 		if strings.Index(e, s[1]) == -1 {
 			strs = append(strs, e)
 		}
 	}
-	return strings.Join(strs, "\n"), nil
+	return strings.Join(strs, sep), nil
 }
 
 func prefix(s []string) (interface{}, error) {
 	log.Debug("Entry prefix")
-	var ret string
-	split := xNewLine.Split(s[2], -1)
-	for _, e := range split {
-		ret += s[1] + e + "\n"
-	}
-
-	return ret, nil
+	split, sep := split(s[2])
+	strs := mapArray(split, func(e string) string {
+		return s[1] + e
+	})
+	log.Debugf("Array now: %v\n", strs)
+	return strings.Join(strs, sep), nil
 }
 
 // tt s abc
 func suffix(s []string) (interface{}, error) {
 	log.Debug("Entry suffix")
-	var ret string
-	split := xNewLine.Split(s[2], -1)
-	for _, e := range split {
-		ret += e + s[1] + "\n"
-	}
-
-	return ret, nil
+	split, sep := split(s[2])
+	strs := mapArray(split, func(e string) string {
+		return e + s[1]
+	})
+	return strings.Join(strs, sep), nil
 }
 
 // tt ts abc
 func trimStart(s []string) (interface{}, error) {
 	log.Debug("Entry trimStart")
 	var size = len(s[1])
-	var ret string
-	split := xNewLine.Split(s[2], -1)
-	for _, e := range split {
-		// log.Debugf("idx: %v", idx)
+	split, sep := split(s[2])
+	strs := mapArray(split, func(e string) string {
 		var idx = strings.Index(e, s[1])
 		if idx > -1 {
-			ret += e[idx+size:] + "\n"
+			return e[idx+size:]
 		} else {
-			ret += e + "\n"
+			return e
 		}
-	}
+	})
 
-	return ret, nil
+	return strings.Join(strs, sep), nil
 }
 
 // tt tsx abc
 func trimStartX(s []string) (interface{}, error) {
 	log.Debug("Entry trimStartX")
-	var ret string
-	split := xNewLine.Split(s[2], -1)
-	for _, e := range split {
-		// log.Debugf("idx: %v", idx)
+	split, sep := split(s[2])
+	strs := mapArray(split, func(e string) string {
 		var idx = strings.Index(e, s[1])
 		if idx > -1 {
-			ret += e[idx:] + "\n"
+			return e[idx:]
 		} else {
-			ret += e + "\n"
+			return e
 		}
-	}
+	})
 
-	return ret, nil
+	return strings.Join(strs, sep), nil
 
 }
 
 func trimEnd(s []string) (interface{}, error) {
 	log.Debug("Entry trimEnd")
-	var ret string
-	split := xNewLine.Split(s[2], -1)
-	for _, e := range split {
-		// log.Debugf("idx: %v", idx)
+	split, sep := split(s[2])
+	strs := mapArray(split, func(e string) string {
 		var idx = strings.Index(e, s[1])
 		if idx > -1 {
-			ret += e[:idx] + "\n"
+			return e[:idx]
 		} else {
-			ret += e + "\n"
+			return e
 		}
-	}
+	})
 
-	return ret, nil
+	return strings.Join(strs, sep), nil
 }
 
 func trimEndX(s []string) (interface{}, error) {
 	log.Debug("Entry trimEndX")
 	var size = len(s[1])
-	var ret string
-	split := xNewLine.Split(s[2], -1)
-	for _, e := range split {
+	split, sep := split(s[2])
+	strs := mapArray(split, func(e string) string {
 		// log.Debugf("idx: %v", idx)
 		var idx = strings.Index(e, s[1])
 		if idx > -1 {
-			ret += e[:idx-size+1] + "\n"
+			return e[:idx-size+1]
 		} else {
-			ret += e + "\n"
+			return e
 		}
-	}
+	})
 
-	return ret, nil
+	return strings.Join(strs, sep), nil
 }
 
 func sortFunction(s []string) (interface{}, error) {
 	log.Debug("Entry sort")
-	strs := xNewLine.Split(s[1], -1)
-	sort.Strings(strs)
-	return strings.Join(strs, "\n"), nil
+	// strs := xNewLine.Split(s[1], -1)
+	split, sep := split(s[1])
+	sort.Strings(split)
+	return strings.Join(split, sep), nil
 }
 
 func invert(s []string) (interface{}, error) {
 	log.Debug("Entry invert")
-	split := xNewLine.Split(s[1], -1)
-	var strs []string
+	split, sep := split(s[1])
+	strs := []string{}
 	for _, e := range split {
 		strs = append([]string{e}, strs...)
 	}
-	return strings.Join(strs, "\n"), nil
+	return strings.Join(strs, sep), nil
 }
 
 func removeDuplicates(s []string) (interface{}, error) {
 	log.Debug("Entry remove duplicates")
-	split := xNewLine.Split(s[1], -1)
-	var strs []string
+	split, sep := split(s[1])
+	strs := []string{}
 	for _, e := range split {
 		isDup := false
 		for _, str := range strs {
@@ -217,7 +208,7 @@ func removeDuplicates(s []string) (interface{}, error) {
 			strs = append(strs, e)
 		}
 	}
-	return strings.Join(strs, "\n"), nil
+	return strings.Join(strs, sep), nil
 }
 
 func clear(s []string) (interface{}, error) {
@@ -277,4 +268,43 @@ func transformBackslashes(s string) string {
 	ret = strings.Replace(ret, "\\r", "\r", -1)
 	ret = strings.Replace(ret, "\\f", "\f", -1)
 	return ret
+}
+
+const crlf = "\r\n"
+const lf = "\n"
+const cr = "\r"
+
+func split(s string) ([]string, string) {
+	split, ok := trySplit(s, crlf)
+	if ok {
+		return split, crlf
+	}
+	split, ok = trySplit(s, lf)
+	if ok {
+		return split, lf
+	}
+	split, ok = trySplit(s, cr)
+	if ok {
+		return split, lf
+	}
+	// default: lf
+	return split, lf
+}
+
+func trySplit(s string, separator string) ([]string, bool) {
+	split := strings.Split(s, separator)
+	success := false
+	if len(split) > 1 {
+		success = true
+	}
+	return split, success
+}
+
+func mapArray(split []string, mapper func(string) string) []string {
+	strs := []string{}
+	for _, e := range split {
+		str := mapper(e)
+		strs = append(strs, str)
+	}
+	return strs
 }

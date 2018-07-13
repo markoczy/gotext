@@ -9,7 +9,7 @@ import (
 )
 
 func main() {
-	logconfig.SetDefaultLogLevel(logconfig.ERROR)
+	logconfig.SetDefaultLogLevel(logconfig.DEBUG)
 
 	var clip *string
 	read, err := clipboard.ReadAll()
