@@ -3,6 +3,7 @@ package handler
 import (
 	"fmt"
 	"github.com/markoczy/goutil/cli"
+	"github.com/markoczy/goutil/cli/clierror"
 	"github.com/markoczy/goutil/cli/parser"
 	"github.com/markoczy/goutil/log"
 )
@@ -12,7 +13,7 @@ var cmdParser = initParser()
 // Exec ...
 func Exec(args []string, input *string) (*string, error) {
 	log.Debugf("Command array: %v\n", args)
-	log.Debugf("Input: %s\n", input)
+	log.Debugf("Input: %s\n", *input)
 
 	if len(args) < 1 {
 		showHelp()
@@ -26,11 +27,18 @@ func Exec(args []string, input *string) (*string, error) {
 	}
 	ifc, err := cmdParser.Exec(lArgs)
 	if err != nil {
+		if clierror.IsArgsCountMismatch(err) {
+			log.Warnf("Args count mismatch")
+			showHelp()
+			return nil, nil
+		}
 		return nil, err
 	}
-	ret := ifc.(string)
-
-	return &ret, err
+	if ifc != nil {
+		ret := ifc.(string)
+		return &ret, err
+	}
+	return nil, err
 }
 
 // func AddCommand(aParser parser.Parser, aName string, aPriority int,
@@ -48,9 +56,9 @@ func initParser() parser.Parser {
 	cli.AddCommand(parser, "Prefix", 1, "^((p)|(pr)|(pre)|(prefix))$", 2, prefix)
 	cli.AddCommand(parser, "Suffix", 1, "^((s)|(po)|(post)|(suffix))$", 2, suffix)
 	cli.AddCommand(parser, "Trim start", 1, "^((ts)|(tstart)|(trimstart))$", 2, trimStart)
-	cli.AddCommand(parser, "Trim start (exclusive)", 1, "^((tsx)|(tstartx)|(trimstartx))$", 1, trimStartX)
+	cli.AddCommand(parser, "Trim start (exclusive)", 1, "^((tsx)|(tstartx)|(trimstartx))$", 2, trimStartX)
 	cli.AddCommand(parser, "Trim end", 1, "^((te)|(tend)|(trimend))$", 2, trimEnd)
-	cli.AddCommand(parser, "Trim end (exclusive)", 2, "^((tex)|(tendx)|(trimendx))$", 1, trimEndX)
+	cli.AddCommand(parser, "Trim end (exclusive)", 2, "^((tex)|(tendx)|(trimendx))$", 2, trimEndX)
 	cli.AddCommand(parser, "Sort", 1, "^((o)|(sort)|(order))$", 1, sortFunction)
 	cli.AddCommand(parser, "Invert", 1, "^((i)|(inv)|(invert))$", 1, invert)
 	cli.AddCommand(parser, "Remove Duplicates", 1, "^((rd)|(remdup)|(nodup))$", 1, removeDuplicates)
@@ -105,7 +113,7 @@ func showHelp() {
 
 func showHelpFunction(s []string) (interface{}, error) {
 	showHelp()
-	return s[1], nil
+	return nil, nil
 }
 
 // todo: replace, filter, merge, ...

@@ -166,7 +166,7 @@ func trimEndX(s []string) (interface{}, error) {
 		// log.Debugf("idx: %v", idx)
 		var idx = strings.Index(e, s[1])
 		if idx > -1 {
-			return e[:idx-size+1]
+			return e[:idx+size]
 		} else {
 			return e
 		}
