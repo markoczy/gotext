@@ -1,16 +1,23 @@
 package handler
 
 import (
-	"github.com/markoczy/goutil/log"
+	"fmt"
 	"io/ioutil"
 	"os"
 	"path"
 	"regexp"
 	"sort"
 	"strings"
+
+	"github.com/markoczy/goutil/log"
 )
 
 var xNewLine = regexp.MustCompile("\r?\n")
+
+func paste(s []string) (interface{}, error) {
+	fmt.Print(s[1])
+	return s[1], nil
+}
 
 func save(s []string) (interface{}, error) {
 	log.Debug("Entry save")

@@ -1,15 +1,16 @@
 package main
 
 import (
+	"os"
+
 	"github.com/atotto/clipboard"
 	"github.com/markoczy/gotext/handler"
 	"github.com/markoczy/goutil/log"
 	"github.com/markoczy/goutil/log/logconfig"
-	"os"
 )
 
 func main() {
-	logconfig.SetDefaultLogLevel(logconfig.DEBUG)
+	logconfig.SetDefaultLogLevel(logconfig.ERROR)
 
 	var clip *string
 	read, err := clipboard.ReadAll()

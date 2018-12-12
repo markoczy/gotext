@@ -2,6 +2,7 @@ package handler
 
 import (
 	"fmt"
+
 	"github.com/markoczy/goutil/cli"
 	"github.com/markoczy/goutil/cli/clierror"
 	"github.com/markoczy/goutil/cli/parser"
@@ -47,6 +48,7 @@ func Exec(args []string, input *string) (*string, error) {
 func initParser() parser.Parser {
 	parser := cli.NewParser()
 
+	cli.AddCommand(parser, "Paste", 1, "^(paste)$", 1, paste)
 	cli.AddCommand(parser, "Save", 1, "^((sv)|(save))$", 2, save)
 	cli.AddCommand(parser, "Quicksave", 1, "^((qs)|(quicksave))$", 2, quicksave)
 	cli.AddCommand(parser, "Load", 1, "^((ld)|(load))$", 2, load)
@@ -88,6 +90,7 @@ func showHelp() {
 	fmt.Println("* l                : lowercase")
 	fmt.Println("* c                : Clear formatting")
 	fmt.Println("* i                : Invert line order")
+	fmt.Println("* paste            : Paste text to console (use with \">\")")
 	fmt.Println("* sort             : Sort (alt: 'o')")
 	fmt.Println("* rdup             : remove all duplicates (alt: 'rd')")
 	fmt.Println("* filter [txt]     : Select lines with [txt] (alt: 'f')")
