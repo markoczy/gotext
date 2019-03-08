@@ -9,13 +9,16 @@ import (
 	"github.com/markoczy/goutil/log/logconfig"
 )
 
+var empty = ""
+
 func main() {
 	logconfig.SetDefaultLogLevel(logconfig.ERROR)
 
 	var clip *string
 	read, err := clipboard.ReadAll()
-	if err != nil {
+	if err != nil || clip == nil {
 		log.Debug("Clipboard not available: " + err.Error())
+		clip = &empty
 	} else {
 		clip = &read
 	}
