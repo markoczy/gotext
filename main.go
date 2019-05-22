@@ -16,7 +16,7 @@ func main() {
 
 	var clip *string
 	read, err := clipboard.ReadAll()
-	if err != nil || clip == nil {
+	if err != nil {
 		log.Debug("Clipboard not available: " + err.Error())
 		clip = &empty
 	} else {

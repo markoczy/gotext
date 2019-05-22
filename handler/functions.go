@@ -7,6 +7,7 @@ import (
 	"path"
 	"regexp"
 	"sort"
+	"strconv"
 	"strings"
 
 	"github.com/markoczy/goutil/log"
@@ -180,6 +181,28 @@ func trimEndX(s []string) (interface{}, error) {
 	})
 
 	return strings.Join(strs, sep), nil
+}
+
+func skipBegin(s []string) (interface{}, error) {
+	log.Debug("Entry skipBegin")
+	n, err := strconv.Atoi(s[1])
+	if err != nil {
+		return nil, err
+	}
+	split, sep := split(s[2])
+
+	return strings.Join(split[n:], sep), nil
+}
+
+func skipEnd(s []string) (interface{}, error) {
+	log.Debug("Entry skipBegin")
+	n, err := strconv.Atoi(s[1])
+	if err != nil {
+		return nil, err
+	}
+	split, sep := split(s[2])
+
+	return strings.Join(split[:len(split)-n], sep), nil
 }
 
 func sortFunction(s []string) (interface{}, error) {
