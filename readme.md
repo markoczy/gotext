@@ -10,7 +10,8 @@ As a programmer you might know this situation where you just have to do a simple
 some prefix or suffix from every line. Usually you would open the text editor of your choice and do the transformation with that editor.
 Imagine you could do all this and more without even opening a text editor, that's exactly where Gotext comes into play. Gotext is even
 more powerful than any text editor (except vim maybe) giving you access to functions for sorting, filtering, removing duplicate lines
-and more.
+and more. All functions are directly applied to the System's clipboard which means that you can instantly continue your work with the
+transformed text (instead of pasting, transorming and copying again).
 
 ## Usage
 
@@ -45,7 +46,68 @@ rt [in] [out]    : replace transform backslashes
 rxt [in] [out]   : replace regex transform backslashes
 ```
 
+### Example
+
+Imagine you have a heavy xml file in front of you containing 100 items in the following format:
+
+```xml
+<someobject>
+    <id>48593</id>
+    <someusefulinfo1>
+        <moreusefulinfo>Sometext</moreusefulinfo>
+    </someusefulinfo1>
+    <someusefulinfo2></someusefulinfo2>
+</someobject>
+
+<someobject>
+    <id>99424</id>
+    <!-- same stucture... -->
+</someobject>
+
+<!-- ... -->
+```
+
+Now you want to extract the id of every object in this file.
+- First you would copy the text of this file in your clipboard to work with Gotext
+- Then you would extract all the lines containing the word `<id>` with the following command: `tt f "<id>"`
+- The clipboard will be as follows:
+
+```xml
+    <id>48593</id>
+    <id>99424</id>
+    <!-- ... -->
+```
+
+- Next you would trim out the `<id>` and `</id>` tokens:
+  - Trim from start to the first `>` with the following command: `tt ts ">"`
+  - Trim from end to the first `<` with the following command: `tt te "<"`
+- The clipboard will be as follows:
+
+```xml
+48593
+99424
+...
+```
+
+The job is done. You want to go further? How about making an SQL Select statement for each of these Id's:
+
+- Prefix the Select Clause: `tt p "SELECT * FROM table WHERE id=\""` (note the escaped `"`)
+- Suffix the trailing `"` like this: `tt s "\""` (again we escape `"` with `\`)
+- In the end, this would be your result stored in the clipboard:
+
+```sql
+SELECT * FROM table WHERE id="48593"
+SELECT * FROM table WHERE id="99424"
+...
+```
+
+## Deployment
+
 ### Windows
 
 Just place the `tt.exe` executable anywhere in your `%PATH%` then you can just press `Win+R` (Run Shortcut) and type some Gotext 
 commands like `tt u` (Uppercase), `tt sort` (Sort Lines) or else.
+
+## License
+
+Public Domain
