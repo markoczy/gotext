@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"io/ioutil"
 	"os"
+	"os/user"
 	"path"
 	"regexp"
 	"sort"
@@ -14,6 +15,14 @@ import (
 )
 
 var xNewLine = regexp.MustCompile("\r?\n")
+
+func quickSavePath() (string, error) {
+	usr, err := user.Current()
+	if err != nil {
+		return "", err
+	}
+	return path.Join(usr.HomeDir, ".gotext"), nil
+}
 
 func paste(s []string) (interface{}, error) {
 	fmt.Print(s[1])
@@ -39,14 +48,18 @@ func load(s []string) (interface{}, error) {
 }
 
 func quicksave(s []string) (interface{}, error) {
-	log.Debug("Entry save")
-	filepath := path.Join(os.TempDir(), "gotext")
-	_, err := os.Stat(filepath)
-	if os.IsNotExist(err) {
-		os.Mkdir(filepath, 0644)
+	log.Debug("Entry quicksave")
+	folder, err := quickSavePath()
+	if err != nil {
+		return nil, err
 	}
-	filepath = path.Join(filepath, s[1])
-	err = ioutil.WriteFile(filepath, []byte(s[2]), 0666)
+
+	_, err = os.Stat(folder)
+	if os.IsNotExist(err) {
+		os.Mkdir(folder, 0644)
+	}
+	path := path.Join(folder, s[1])
+	err = ioutil.WriteFile(path, []byte(s[2]), 0666)
 	if err != nil {
 		return nil, err
 	}
@@ -54,8 +67,12 @@ func quicksave(s []string) (interface{}, error) {
 }
 
 func quickload(s []string) (interface{}, error) {
-	log.Debug("Entry save")
-	path := path.Join(os.TempDir(), "gotext", s[1])
+	log.Debug("Entry quickload")
+	folder, err := quickSavePath()
+	if err != nil {
+		return nil, err
+	}
+	path := path.Join(folder, s[1])
 	dat, err := ioutil.ReadFile(path)
 	if err != nil {
 		return nil, err
@@ -70,6 +87,38 @@ func uppercase(s []string) (interface{}, error) {
 
 func lowercase(s []string) (interface{}, error) {
 	log.Debug("Entry lowercase")
+	return strings.ToLower(s[1]), nil
+}
+
+func purge(s []string) (interface{}, error) {
+	log.Debug(fmt.Sprintf("Entry purge"))
+	askConfirm := !(len(s) > 2 && strings.ToUpper(s[1]) == "-Y")
+
+	doPurge := false
+	if askConfirm {
+		fmt.Print("Really purge all quicksaves? [y/n]: ")
+		var input string
+		fmt.Scanf("%s", &input)
+		if strings.ToUpper(input) == "Y" {
+			doPurge = true
+		}
+	}
+
+	if !askConfirm || doPurge {
+		folder, err := quickSavePath()
+		if err != nil {
+			return nil, err
+		}
+
+		_, err = os.Stat(folder)
+		if !os.IsNotExist(err) {
+			err = os.RemoveAll(folder)
+			if err != nil {
+				return nil, err
+			}
+		}
+	}
+
 	return strings.ToLower(s[1]), nil
 }
 
