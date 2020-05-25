@@ -9,6 +9,8 @@ import (
 	"github.com/markoczy/goutil/log"
 )
 
+const Version = "1.01"
+
 var cmdParser = initParser()
 
 // Exec ...
@@ -47,7 +49,6 @@ func Exec(args []string, input *string) (*string, error) {
 
 func initParser() parser.Parser {
 	parser := cli.NewParser()
-
 	cli.AddCommand(parser, "Paste", 1, "^(paste)$", 1, paste)
 	cli.AddCommand(parser, "Save", 1, "^((sv)|(save))$", 2, save)
 	cli.AddCommand(parser, "Quicksave", 1, "^((qs)|(quicksave))$", 2, quicksave)
@@ -55,6 +56,7 @@ func initParser() parser.Parser {
 	cli.AddCommand(parser, "Quickload", 1, "^((ql)|(quickload))$", 2, quickload)
 	cli.AddCommand(parser, "Uppercase", 1, "^((u)|(uc)|(upper)|(uppercase))$", 1, uppercase)
 	cli.AddCommand(parser, "Lowercase", 1, "^((l)|(lc)|(lower)|(lowercase))$", 1, lowercase)
+	cli.AddCommand(parser, "ROT 13", 1, "^((rot13)|(r13)|(13))$", 1, rot13)
 	cli.AddCommand(parser, "Purge", 1, "^(purge)$", -1, purge)
 	cli.AddCommand(parser, "Prefix", 1, "^((p)|(pr)|(pre)|(prefix))$", 2, prefix)
 	cli.AddCommand(parser, "Suffix", 1, "^((s)|(po)|(post)|(suffix))$", 2, suffix)
@@ -82,7 +84,7 @@ func initParser() parser.Parser {
 func showHelp() {
 	fmt.Println()
 	fmt.Println("************************************************************")
-	fmt.Println("* TextTools GO by A. Markoczy")
+	fmt.Println("* TextTools GO " + Version + " by A. Markoczy")
 	fmt.Println("************************************************************")
 	fmt.Println("*")
 	fmt.Println("**** Help section ****")
@@ -96,6 +98,7 @@ func showHelp() {
 	fmt.Println("* paste            : Paste text to console (use with \">\")")
 	fmt.Println("* sort             : Sort (alt: 'o')")
 	fmt.Println("* rdup             : remove all duplicates (alt: 'rd')")
+	fmt.Println("* rot13            : ROT 13 encryption (alt: '13')")
 	fmt.Println("* purge [-y]       : delete all quicksaves")
 	fmt.Println("* filter [txt]     : Select lines with [txt] (alt: 'f')")
 	fmt.Println("* filterx [txt]    : Exclude lines with [txt] (alt: 'fx')")

@@ -334,6 +334,20 @@ func replaceXT(s []string) (interface{}, error) {
 	return ret, nil
 }
 
+func rot13(s []string) (interface{}, error) {
+	ret := ""
+	for _, v := range s[1] {
+		chr := v
+		if chr > 64 && chr < 91 {
+			chr = 65 + ((chr - 52) % 26)
+		} else if chr > 96 && chr < 123 {
+			chr = 97 + ((chr - 84) % 26)
+		}
+		ret += string(chr)
+	}
+	return ret, nil
+}
+
 func transformBackslashes(s string) string {
 	// \t Insert a tab in the text at this point.
 	// \b Insert a backspace in the text at this point.
