@@ -14,71 +14,21 @@ import (
 	"github.com/markoczy/goutil/log"
 )
 
-var xNewLine = regexp.MustCompile("\r?\n")
+//=================================================
+//
+// Command Array specification:
+//
+// s[0]     = Command String
+// s[1:n-1] = Command Params (optional)
+// s[n]     = Clipboard
+//
+// => n is the number of params (1 terminated)
+//    For a function using only Clipboard as
+//    parameter n is equal 1.
+//
+//=================================================
 
-func quickSavePath() (string, error) {
-	usr, err := user.Current()
-	if err != nil {
-		return "", err
-	}
-	return path.Join(usr.HomeDir, ".gotext"), nil
-}
-
-func paste(s []string) (interface{}, error) {
-	fmt.Print(s[1])
-	return s[1], nil
-}
-
-func save(s []string) (interface{}, error) {
-	log.Debug("Entry save")
-	err := ioutil.WriteFile(s[1], []byte(s[2]), 0666)
-	if err != nil {
-		return nil, err
-	}
-	return s[2], nil
-}
-
-func load(s []string) (interface{}, error) {
-	log.Debug("Entry load")
-	dat, err := ioutil.ReadFile(s[1])
-	if err != nil {
-		return nil, err
-	}
-	return string(dat), nil
-}
-
-func quicksave(s []string) (interface{}, error) {
-	log.Debug("Entry quicksave")
-	folder, err := quickSavePath()
-	if err != nil {
-		return nil, err
-	}
-
-	_, err = os.Stat(folder)
-	if os.IsNotExist(err) {
-		os.Mkdir(folder, 0644)
-	}
-	path := path.Join(folder, s[1])
-	err = ioutil.WriteFile(path, []byte(s[2]), 0666)
-	if err != nil {
-		return nil, err
-	}
-	return s[2], nil
-}
-
-func quickload(s []string) (interface{}, error) {
-	log.Debug("Entry quickload")
-	folder, err := quickSavePath()
-	if err != nil {
-		return nil, err
-	}
-	path := path.Join(folder, s[1])
-	dat, err := ioutil.ReadFile(path)
-	if err != nil {
-		return nil, err
-	}
-	return string(dat), nil
-}
+//*** Single Var Commands (Clipboard = s[1]) ***//
 
 func uppercase(s []string) (interface{}, error) {
 	log.Debug("Entry uppercase")
@@ -88,6 +38,65 @@ func uppercase(s []string) (interface{}, error) {
 func lowercase(s []string) (interface{}, error) {
 	log.Debug("Entry lowercase")
 	return strings.ToLower(s[1]), nil
+}
+
+func clear(s []string) (interface{}, error) {
+	log.Debug("Entry clear")
+	return s[1], nil
+}
+
+func invert(s []string) (interface{}, error) {
+	log.Debug("Entry invert")
+	split, sep := split(s[1])
+	strs := []string{}
+	for _, e := range split {
+		strs = append([]string{e}, strs...)
+	}
+	return strings.Join(strs, sep), nil
+}
+
+func paste(s []string) (interface{}, error) {
+	fmt.Print(s[1])
+	return s[1], nil
+}
+
+func sortFunction(s []string) (interface{}, error) {
+	log.Debug("Entry sort")
+	split, sep := split(s[1])
+	sort.Strings(split)
+	return strings.Join(split, sep), nil
+}
+
+func removeDuplicates(s []string) (interface{}, error) {
+	log.Debug("Entry remove duplicates")
+	split, sep := split(s[1])
+	strs := []string{}
+	for _, e := range split {
+		isDup := false
+		for _, str := range strs {
+			if e == str {
+				isDup = true
+			}
+		}
+		if !isDup {
+			strs = append(strs, e)
+		}
+	}
+	return strings.Join(strs, sep), nil
+}
+
+func rot13(s []string) (interface{}, error) {
+	ret := ""
+	for _, v := range s[1] {
+		chr := v
+		if chr > 64 && chr < 91 {
+			chr = 65 + ((chr - 52) % 26)
+		} else if chr > 96 && chr < 123 {
+			chr = 97 + ((chr - 84) % 26)
+		}
+		ret += string(chr)
+	}
+	return ret, nil
 }
 
 func purge(s []string) (interface{}, error) {
@@ -121,6 +130,8 @@ func purge(s []string) (interface{}, error) {
 
 	return strings.ToLower(s[1]), nil
 }
+
+//*** Double Var Commands (Clipboard = s[2]) ***//
 
 func filter(s []string) (interface{}, error) {
 	log.Debug("Entry filter")
@@ -232,6 +243,57 @@ func trimEndX(s []string) (interface{}, error) {
 	return strings.Join(strs, sep), nil
 }
 
+func save(s []string) (interface{}, error) {
+	log.Debug("Entry save")
+	err := ioutil.WriteFile(s[1], []byte(s[2]), 0666)
+	if err != nil {
+		return nil, err
+	}
+	return s[2], nil
+}
+
+func load(s []string) (interface{}, error) {
+	log.Debug("Entry load")
+	dat, err := ioutil.ReadFile(s[1])
+	if err != nil {
+		return nil, err
+	}
+	return string(dat), nil
+}
+
+func quicksave(s []string) (interface{}, error) {
+	log.Debug("Entry quicksave")
+	folder, err := quickSavePath()
+	if err != nil {
+		return nil, err
+	}
+
+	_, err = os.Stat(folder)
+	if os.IsNotExist(err) {
+		os.Mkdir(folder, 0644)
+	}
+	path := path.Join(folder, s[1])
+	err = ioutil.WriteFile(path, []byte(s[2]), 0666)
+	if err != nil {
+		return nil, err
+	}
+	return s[2], nil
+}
+
+func quickload(s []string) (interface{}, error) {
+	log.Debug("Entry quickload")
+	folder, err := quickSavePath()
+	if err != nil {
+		return nil, err
+	}
+	path := path.Join(folder, s[1])
+	dat, err := ioutil.ReadFile(path)
+	if err != nil {
+		return nil, err
+	}
+	return string(dat), nil
+}
+
 func skipBegin(s []string) (interface{}, error) {
 	log.Debug("Entry skipBegin")
 	n, err := strconv.Atoi(s[1])
@@ -254,46 +316,7 @@ func skipEnd(s []string) (interface{}, error) {
 	return strings.Join(split[:len(split)-n], sep), nil
 }
 
-func sortFunction(s []string) (interface{}, error) {
-	log.Debug("Entry sort")
-	// strs := xNewLine.Split(s[1], -1)
-	split, sep := split(s[1])
-	sort.Strings(split)
-	return strings.Join(split, sep), nil
-}
-
-func invert(s []string) (interface{}, error) {
-	log.Debug("Entry invert")
-	split, sep := split(s[1])
-	strs := []string{}
-	for _, e := range split {
-		strs = append([]string{e}, strs...)
-	}
-	return strings.Join(strs, sep), nil
-}
-
-func removeDuplicates(s []string) (interface{}, error) {
-	log.Debug("Entry remove duplicates")
-	split, sep := split(s[1])
-	strs := []string{}
-	for _, e := range split {
-		isDup := false
-		for _, str := range strs {
-			if e == str {
-				isDup = true
-			}
-		}
-		if !isDup {
-			strs = append(strs, e)
-		}
-	}
-	return strings.Join(strs, sep), nil
-}
-
-func clear(s []string) (interface{}, error) {
-	log.Debug("Entry clear")
-	return s[1], nil
-}
+//*** Triple Var Commands (Clipboard = s[3]) ***//
 
 func replace(s []string) (interface{}, error) {
 	// 1 from, 2 to, 3 clipboard
@@ -334,18 +357,14 @@ func replaceXT(s []string) (interface{}, error) {
 	return ret, nil
 }
 
-func rot13(s []string) (interface{}, error) {
-	ret := ""
-	for _, v := range s[1] {
-		chr := v
-		if chr > 64 && chr < 91 {
-			chr = 65 + ((chr - 52) % 26)
-		} else if chr > 96 && chr < 123 {
-			chr = 97 + ((chr - 84) % 26)
-		}
-		ret += string(chr)
+//*** Reusable Low-Level Functions ***//
+
+func quickSavePath() (string, error) {
+	usr, err := user.Current()
+	if err != nil {
+		return "", err
 	}
-	return ret, nil
+	return path.Join(usr.HomeDir, ".gotext"), nil
 }
 
 func transformBackslashes(s string) string {
@@ -367,7 +386,9 @@ const crlf = "\r\n"
 const lf = "\n"
 const cr = "\r"
 
+// split splits a single String into a slice of strings. Supports any common end-line sequence and returns the sequence that was found as second return value.
 func split(s string) ([]string, string) {
+	// TODO performance could be optimized by first searching for any of the line endings and not using trySplit.
 	split, ok := trySplit(s, crlf)
 	if ok {
 		return split, crlf
