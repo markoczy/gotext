@@ -4,14 +4,16 @@ import (
 	"fmt"
 	"io/ioutil"
 	"os"
-	"os/user"
 	"path"
 	"regexp"
 	"sort"
 	"strconv"
 	"strings"
+	"syscall"
 
+	"github.com/markoczy/gotext/common"
 	"github.com/markoczy/goutil/log"
+	"golang.org/x/crypto/ssh/terminal"
 )
 
 //=================================================
@@ -47,7 +49,7 @@ func clear(s []string) (interface{}, error) {
 
 func invert(s []string) (interface{}, error) {
 	log.Debug("Entry invert")
-	split, sep := split(s[1])
+	split, sep := common.Split(s[1])
 	strs := []string{}
 	for _, e := range split {
 		strs = append([]string{e}, strs...)
@@ -62,14 +64,14 @@ func paste(s []string) (interface{}, error) {
 
 func sortFunction(s []string) (interface{}, error) {
 	log.Debug("Entry sort")
-	split, sep := split(s[1])
+	split, sep := common.Split(s[1])
 	sort.Strings(split)
 	return strings.Join(split, sep), nil
 }
 
 func removeDuplicates(s []string) (interface{}, error) {
 	log.Debug("Entry remove duplicates")
-	split, sep := split(s[1])
+	split, sep := common.Split(s[1])
 	strs := []string{}
 	for _, e := range split {
 		isDup := false
@@ -114,7 +116,7 @@ func purge(s []string) (interface{}, error) {
 	}
 
 	if !askConfirm || doPurge {
-		folder, err := quickSavePath()
+		folder, err := common.InitQuickSaveDir()
 		if err != nil {
 			return nil, err
 		}
@@ -131,12 +133,32 @@ func purge(s []string) (interface{}, error) {
 	return strings.ToLower(s[1]), nil
 }
 
+func login(s []string) (interface{}, error) {
+	log.Debug(fmt.Sprintf("Entry login"))
+	var pw string
+	if len(s) > 2 {
+		pw = s[1]
+	} else {
+		fmt.Print("Enter password: ")
+		tmp, err := terminal.ReadPassword(int(syscall.Stdin))
+		fmt.Print("\n")
+		if err != nil {
+			return nil, err
+		}
+		pw = string(tmp)
+	}
+
+	fmt.Println(pw)
+
+	return strings.ToLower(s[1]), nil
+}
+
 //*** Double Var Commands (Clipboard = s[2]) ***//
 
 func filter(s []string) (interface{}, error) {
 	log.Debug("Entry filter")
 	strs := []string{}
-	split, sep := split(s[2])
+	split, sep := common.Split(s[2])
 	for _, e := range split {
 		if strings.Index(e, s[1]) > -1 {
 			strs = append(strs, e)
@@ -148,7 +170,7 @@ func filter(s []string) (interface{}, error) {
 func filterExclusive(s []string) (interface{}, error) {
 	log.Debug("Entry filter")
 	strs := []string{}
-	split, sep := split(s[2])
+	split, sep := common.Split(s[2])
 	for _, e := range split {
 		if strings.Index(e, s[1]) == -1 {
 			strs = append(strs, e)
@@ -159,8 +181,8 @@ func filterExclusive(s []string) (interface{}, error) {
 
 func prefix(s []string) (interface{}, error) {
 	log.Debug("Entry prefix")
-	split, sep := split(s[2])
-	strs := mapArray(split, func(e string) string {
+	split, sep := common.Split(s[2])
+	strs := common.MapArray(split, func(e string) string {
 		return s[1] + e
 	})
 	log.Debugf("Array now: %v\n", strs)
@@ -170,8 +192,8 @@ func prefix(s []string) (interface{}, error) {
 // tt s abc
 func suffix(s []string) (interface{}, error) {
 	log.Debug("Entry suffix")
-	split, sep := split(s[2])
-	strs := mapArray(split, func(e string) string {
+	split, sep := common.Split(s[2])
+	strs := common.MapArray(split, func(e string) string {
 		return e + s[1]
 	})
 	return strings.Join(strs, sep), nil
@@ -181,8 +203,8 @@ func suffix(s []string) (interface{}, error) {
 func trimStart(s []string) (interface{}, error) {
 	log.Debug("Entry trimStart")
 	var size = len(s[1])
-	split, sep := split(s[2])
-	strs := mapArray(split, func(e string) string {
+	split, sep := common.Split(s[2])
+	strs := common.MapArray(split, func(e string) string {
 		var idx = strings.Index(e, s[1])
 		if idx > -1 {
 			return e[idx+size:]
@@ -197,8 +219,8 @@ func trimStart(s []string) (interface{}, error) {
 // tt tsx abc
 func trimStartX(s []string) (interface{}, error) {
 	log.Debug("Entry trimStartX")
-	split, sep := split(s[2])
-	strs := mapArray(split, func(e string) string {
+	split, sep := common.Split(s[2])
+	strs := common.MapArray(split, func(e string) string {
 		var idx = strings.Index(e, s[1])
 		if idx > -1 {
 			return e[idx:]
@@ -213,8 +235,8 @@ func trimStartX(s []string) (interface{}, error) {
 
 func trimEnd(s []string) (interface{}, error) {
 	log.Debug("Entry trimEnd")
-	split, sep := split(s[2])
-	strs := mapArray(split, func(e string) string {
+	split, sep := common.Split(s[2])
+	strs := common.MapArray(split, func(e string) string {
 		var idx = strings.Index(e, s[1])
 		if idx > -1 {
 			return e[:idx]
@@ -229,8 +251,8 @@ func trimEnd(s []string) (interface{}, error) {
 func trimEndX(s []string) (interface{}, error) {
 	log.Debug("Entry trimEndX")
 	var size = len(s[1])
-	split, sep := split(s[2])
-	strs := mapArray(split, func(e string) string {
+	split, sep := common.Split(s[2])
+	strs := common.MapArray(split, func(e string) string {
 		// log.Debugf("idx: %v", idx)
 		var idx = strings.Index(e, s[1])
 		if idx > -1 {
@@ -263,15 +285,11 @@ func load(s []string) (interface{}, error) {
 
 func quicksave(s []string) (interface{}, error) {
 	log.Debug("Entry quicksave")
-	folder, err := quickSavePath()
+	folder, err := common.InitQuickSaveDir()
 	if err != nil {
 		return nil, err
 	}
 
-	_, err = os.Stat(folder)
-	if os.IsNotExist(err) {
-		os.Mkdir(folder, 0644)
-	}
 	path := path.Join(folder, s[1])
 	err = ioutil.WriteFile(path, []byte(s[2]), 0666)
 	if err != nil {
@@ -282,7 +300,7 @@ func quicksave(s []string) (interface{}, error) {
 
 func quickload(s []string) (interface{}, error) {
 	log.Debug("Entry quickload")
-	folder, err := quickSavePath()
+	folder, err := common.InitQuickSaveDir()
 	if err != nil {
 		return nil, err
 	}
@@ -300,7 +318,7 @@ func skipBegin(s []string) (interface{}, error) {
 	if err != nil {
 		return nil, err
 	}
-	split, sep := split(s[2])
+	split, sep := common.Split(s[2])
 
 	return strings.Join(split[n:], sep), nil
 }
@@ -311,7 +329,7 @@ func skipEnd(s []string) (interface{}, error) {
 	if err != nil {
 		return nil, err
 	}
-	split, sep := split(s[2])
+	split, sep := common.Split(s[2])
 
 	return strings.Join(split[:len(split)-n], sep), nil
 }
@@ -339,7 +357,7 @@ func replaceX(s []string) (interface{}, error) {
 func replaceT(s []string) (interface{}, error) {
 	// 1 from, 2 to, 3 clipboard
 	log.Debug("Entry replace transform")
-	to := transformBackslashes(s[2])
+	to := common.TransformBackslashes(s[2])
 	log.Debugf("To: %s", to)
 	ret := strings.Replace(s[3], s[1], to, -1)
 	return ret, nil
@@ -352,73 +370,9 @@ func replaceXT(s []string) (interface{}, error) {
 	if err != nil {
 		return nil, err
 	}
-	to := transformBackslashes(s[2])
+	to := common.TransformBackslashes(s[2])
 	ret := matcher.ReplaceAllString(s[3], to)
 	return ret, nil
 }
 
 //*** Reusable Low-Level Functions ***//
-
-func quickSavePath() (string, error) {
-	usr, err := user.Current()
-	if err != nil {
-		return "", err
-	}
-	return path.Join(usr.HomeDir, ".gotext"), nil
-}
-
-func transformBackslashes(s string) string {
-	// \t Insert a tab in the text at this point.
-	// \b Insert a backspace in the text at this point.
-	// \n Insert a newline in the text at this point.
-	// \r Insert a carriage return in the text at this point.
-	// \f Insert a formfeed in the text at this point.
-	ret := s
-	ret = strings.Replace(ret, "\\t", "\t", -1)
-	ret = strings.Replace(ret, "\\b", "\b", -1)
-	ret = strings.Replace(ret, "\\n", "\n", -1)
-	ret = strings.Replace(ret, "\\r", "\r", -1)
-	ret = strings.Replace(ret, "\\f", "\f", -1)
-	return ret
-}
-
-const crlf = "\r\n"
-const lf = "\n"
-const cr = "\r"
-
-// split splits a single String into a slice of strings. Supports any common end-line sequence and returns the sequence that was found as second return value.
-func split(s string) ([]string, string) {
-	// TODO performance could be optimized by first searching for any of the line endings and not using trySplit.
-	split, ok := trySplit(s, crlf)
-	if ok {
-		return split, crlf
-	}
-	split, ok = trySplit(s, lf)
-	if ok {
-		return split, lf
-	}
-	split, ok = trySplit(s, cr)
-	if ok {
-		return split, lf
-	}
-	// default: lf
-	return split, lf
-}
-
-func trySplit(s string, separator string) ([]string, bool) {
-	split := strings.Split(s, separator)
-	success := false
-	if len(split) > 1 {
-		success = true
-	}
-	return split, success
-}
-
-func mapArray(split []string, mapper func(string) string) []string {
-	strs := []string{}
-	for _, e := range split {
-		str := mapper(e)
-		strs = append(strs, str)
-	}
-	return strs
-}

@@ -57,6 +57,7 @@ func initParser() parser.Parser {
 	cli.AddCommand(parser, "Remove Duplicates", 1, "^((rd)|(remdup)|(nodup))$", 1, removeDuplicates)
 	cli.AddCommand(parser, "ROT 13", 1, "^((rot13)|(r13)|(13))$", 1, rot13)
 	cli.AddCommand(parser, "Purge", 1, "^(purge)$", -1, purge)
+	cli.AddCommand(parser, "Login", 1, "^(login)$", -1, login)
 
 	// Double
 	cli.AddCommand(parser, "Filter", 1, "^((f)|(filter))$", 2, filter)
