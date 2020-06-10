@@ -28,7 +28,6 @@ func CreateFixedKey() (key []byte, err error) {
 		return nil, err
 	}
 	pp := fmt.Sprintf("%s-%s-ü432$6ätç(&]*£à", usr.Gid, mac)
-	fmt.Println("Key", pp)
 	x := sha256.Sum256([]byte(pp))
 	key = x[:]
 	return
