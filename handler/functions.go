@@ -336,6 +336,36 @@ func quickload(s []string) (interface{}, error) {
 	return string(dat), nil
 }
 
+func encrypt(s []string) (interface{}, error) {
+	// cmd [pw] cb
+	key, err := getKey(s)
+	if err != nil {
+		return nil, err
+	}
+
+	dat, err := gtcrypto.Encrypt([]byte(s[len(s)-1]), key)
+	if err != nil {
+		return nil, err
+	}
+
+	return string(dat), nil
+}
+
+func decrypt(s []string) (interface{}, error) {
+	// cmd [pw] cb
+	key, err := getKey(s)
+	if err != nil {
+		return nil, err
+	}
+
+	dat, err := gtcrypto.Decrypt([]byte(s[len(s)-1]), key)
+	if err != nil {
+		return nil, err
+	}
+
+	return string(dat), nil
+}
+
 func skipBegin(s []string) (interface{}, error) {
 	log.Debug("Entry skipBegin")
 	n, err := strconv.Atoi(s[1])
@@ -400,6 +430,23 @@ func replaceXT(s []string) (interface{}, error) {
 }
 
 //*** Reusable Low-Level Functions ***//
+
+func getKey(s []string) (key []byte, err error) {
+	var pw string
+	if len(s) > 2 {
+		pw = s[1]
+	} else {
+		pw, err = common.GetPassword()
+		if err != nil {
+			return
+		}
+	}
+	key, err = gtcrypto.CreatePasswordKey(pw)
+	if err != nil {
+		return
+	}
+	return
+}
 
 func getStorageKey(s []string) (key []byte, err error) {
 	passwordMode := false

@@ -5,6 +5,7 @@ import (
 	"crypto/cipher"
 	"crypto/rand"
 	"crypto/sha256"
+	"encoding/base64"
 	"fmt"
 	"io"
 	"net"
@@ -49,10 +50,12 @@ func Encrypt(data, key []byte) (ret []byte, err error) {
 		return
 	}
 	ret = gcm.Seal(nonce, nonce, data, nil)
+	ret = []byte(base64.StdEncoding.EncodeToString(ret))
 	return
 }
 
 func Decrypt(data, key []byte) (ret []byte, err error) {
+	data, err = base64.StdEncoding.DecodeString(string(data))
 	var gcm cipher.AEAD
 	if gcm, err = createGcm(key); err != nil {
 		return

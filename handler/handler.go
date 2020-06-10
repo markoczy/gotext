@@ -9,7 +9,7 @@ import (
 	"github.com/markoczy/goutil/log"
 )
 
-const Version = "1.01"
+const Version = "1.1.0"
 
 var cmdParser = initParser()
 
@@ -71,6 +71,8 @@ func initParser() parser.Parser {
 	cli.AddCommand(parser, "Load", 1, "^((ld)|(load))$", 2, load)
 	cli.AddCommand(parser, "Quicksave", 1, "^((qs)|(quicksave))$", -1, quicksave)
 	cli.AddCommand(parser, "Quickload", 1, "^((ql)|(quickload))$", -1, quickload)
+	cli.AddCommand(parser, "Encrypt", 1, "^((enc)|(encrypt))$", -1, encrypt)
+	cli.AddCommand(parser, "Decrypt", 1, "^((dec)|(decrypt))$", -1, decrypt)
 
 	cli.AddCommand(parser, "Skip Begin", 2, "^((skip)|(skp))$", 2, skipBegin)
 	cli.AddCommand(parser, "Skip End", 2, "^((skipe)|(skpe))$", 2, skipEnd)
@@ -120,6 +122,8 @@ func showHelp() {
 	fmt.Println("* load [path]      : File to clipbooard (alt 'ld')")
 	fmt.Println("* qs [name] [-p]   : Quicksave (save to temp file)")
 	fmt.Println("* ql [name] [-p]   : Quickload (load from temp file)")
+	fmt.Println("* enc [password]   : Encrypt text with password")
+	fmt.Println("* dec [password]   : Decrypt text with password")
 	fmt.Println("* skip [n]         : Skip first [n] lines")
 	fmt.Println("* skipe [n]        : Skip last [n] lines")
 	// Triple
