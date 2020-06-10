@@ -105,6 +105,10 @@ SELECT * FROM table WHERE id="99424"
 
 ### Encryption
 
+#### ROT13 Encryption (V1.0.1)
+
+The command `rot13` (or `13`) can be used to apply ROT13 to the text in the clipboard. No additional parameter is needed.
+
 #### Quicksave Encryption (V1.1.0)
 
 Since Version 1.1.0 of Gotext, everything that is stored in the user folder (command `quicksave`) is encrypted by default. The key that is used is composed from machine and user specific data. This feature is integrated seamlessly in the `quicksave` and `quickload` command and is therefore invisible.
