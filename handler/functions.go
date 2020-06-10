@@ -12,6 +12,7 @@ import (
 	"syscall"
 
 	"github.com/markoczy/gotext/common"
+	"github.com/markoczy/gotext/gtcrypto"
 	"github.com/markoczy/goutil/log"
 	"golang.org/x/crypto/ssh/terminal"
 )
@@ -285,17 +286,28 @@ func load(s []string) (interface{}, error) {
 
 func quicksave(s []string) (interface{}, error) {
 	log.Debug("Entry quicksave")
+
+	key, err := getStorageKey(s)
+	if err != nil {
+		return nil, err
+	}
+
 	folder, err := common.InitQuickSaveDir()
 	if err != nil {
 		return nil, err
 	}
 
-	path := path.Join(folder, s[1])
-	err = ioutil.WriteFile(path, []byte(s[2]), 0666)
+	dat, err := gtcrypto.Encrypt([]byte(s[len(s)-1]), key)
 	if err != nil {
 		return nil, err
 	}
-	return s[2], nil
+
+	path := path.Join(folder, s[1])
+	err = ioutil.WriteFile(path, dat, 0666)
+	if err != nil {
+		return nil, err
+	}
+	return s[len(s)-1], nil
 }
 
 func quickload(s []string) (interface{}, error) {
@@ -304,11 +316,23 @@ func quickload(s []string) (interface{}, error) {
 	if err != nil {
 		return nil, err
 	}
+
+	key, err := getStorageKey(s)
+	if err != nil {
+		return nil, err
+	}
+
 	path := path.Join(folder, s[1])
 	dat, err := ioutil.ReadFile(path)
 	if err != nil {
 		return nil, err
 	}
+
+	dat, err = gtcrypto.Decrypt(dat, key)
+	if err != nil {
+		return nil, err
+	}
+
 	return string(dat), nil
 }
 
@@ -376,3 +400,34 @@ func replaceXT(s []string) (interface{}, error) {
 }
 
 //*** Reusable Low-Level Functions ***//
+
+func getStorageKey(s []string) (key []byte, err error) {
+	passwordMode := false
+	if len(s) > 3 {
+		if s[2] == "-p" {
+			passwordMode = true
+		} else {
+			err = fmt.Errorf("Undefined switch '%s'", s[2])
+			return
+		}
+	}
+
+	if passwordMode {
+		var pw string
+		if len(s) > 4 {
+			pw = s[3]
+		} else {
+			pw, err = common.GetPassword()
+			if err != nil {
+				return
+			}
+		}
+		key, err = gtcrypto.CreatePasswordKey(pw)
+	} else {
+		key, err = gtcrypto.CreateFixedKey()
+	}
+	if err != nil {
+		return
+	}
+	return
+}

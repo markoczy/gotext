@@ -57,7 +57,6 @@ func initParser() parser.Parser {
 	cli.AddCommand(parser, "Remove Duplicates", 1, "^((rd)|(remdup)|(nodup))$", 1, removeDuplicates)
 	cli.AddCommand(parser, "ROT 13", 1, "^((rot13)|(r13)|(13))$", 1, rot13)
 	cli.AddCommand(parser, "Purge", 1, "^(purge)$", -1, purge)
-	cli.AddCommand(parser, "Login", 1, "^(login)$", -1, login)
 
 	// Double
 	cli.AddCommand(parser, "Filter", 1, "^((f)|(filter))$", 2, filter)
@@ -70,8 +69,9 @@ func initParser() parser.Parser {
 	cli.AddCommand(parser, "Trim end (exclusive)", 2, "^((tex)|(tendx)|(trimendx))$", 2, trimEndX)
 	cli.AddCommand(parser, "Save", 1, "^((sv)|(save))$", 2, save)
 	cli.AddCommand(parser, "Load", 1, "^((ld)|(load))$", 2, load)
-	cli.AddCommand(parser, "Quicksave", 1, "^((qs)|(quicksave))$", 2, quicksave)
-	cli.AddCommand(parser, "Quickload", 1, "^((ql)|(quickload))$", 2, quickload)
+	cli.AddCommand(parser, "Quicksave", 1, "^((qs)|(quicksave))$", -1, quicksave)
+	cli.AddCommand(parser, "Quickload", 1, "^((ql)|(quickload))$", -1, quickload)
+
 	cli.AddCommand(parser, "Skip Begin", 2, "^((skip)|(skp))$", 2, skipBegin)
 	cli.AddCommand(parser, "Skip End", 2, "^((skipe)|(skpe))$", 2, skipEnd)
 
@@ -118,8 +118,8 @@ func showHelp() {
 	fmt.Println("* tex [txt]        : trim end to end of [txt] by line")
 	fmt.Println("* save [path]      : Clipboard to file (alt 'sv')")
 	fmt.Println("* load [path]      : File to clipbooard (alt 'ld')")
-	fmt.Println("* qs [name]        : Quicksave (save to temp file)")
-	fmt.Println("* ql [name]        : Quickload (load from temp file)")
+	fmt.Println("* qs [name] [-p]   : Quicksave (save to temp file)")
+	fmt.Println("* ql [name] [-p]   : Quickload (load from temp file)")
 	fmt.Println("* skip [n]         : Skip first [n] lines")
 	fmt.Println("* skipe [n]        : Skip last [n] lines")
 	// Triple

@@ -47,11 +47,11 @@ func InitKeyDir() (string, error) {
 
 func FileExists(path string) bool {
 	_, err := os.Stat(path)
-	return os.IsNotExist(err)
+	return !os.IsNotExist(err)
 }
 
 func CreateFolderIfNotExists(path string) error {
-	_, err := os.Stat(path)
+	var err error
 	if !FileExists(path) {
 		err = os.Mkdir(path, 0644)
 	}

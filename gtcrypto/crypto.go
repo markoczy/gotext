@@ -1,4 +1,4 @@
-package crypto
+package gtcrypto
 
 import (
 	"crypto/aes"
@@ -7,16 +7,8 @@ import (
 	"crypto/sha256"
 	"fmt"
 	"io"
-	"io/ioutil"
+	"net"
 	"os/user"
-	"path"
-	"time"
-
-	"github.com/markoczy/gotext/common"
-)
-
-const (
-	keyFile = "pk.enc"
 )
 
 func CreateRandomyKey() (key []byte, err error) {
@@ -25,14 +17,24 @@ func CreateRandomyKey() (key []byte, err error) {
 	return
 }
 
-func CreateSecondaryKey() (key []byte, err error) {
+func CreateFixedKey() (key []byte, err error) {
 	var usr *user.User
 	if usr, err = user.Current(); err != nil {
 		return nil, err
 	}
-	ts := time.Now().Truncate(time.Hour * 24).Unix()
-	pp := fmt.Sprintf("%s-%d", usr.Gid, ts)
+	var mac string
+	if mac, err = GetMacAddr(); err != nil {
+		return nil, err
+	}
+	pp := fmt.Sprintf("%s-%s-ü432$6ätç(&]*£à", usr.Gid, mac)
+	fmt.Println("Key", pp)
 	x := sha256.Sum256([]byte(pp))
+	key = x[:]
+	return
+}
+
+func CreatePasswordKey(password string) (key []byte, err error) {
+	x := sha256.Sum256([]byte(password + "äjfa(&%çXog$$äü!èDS"))
 	key = x[:]
 	return
 }
@@ -63,52 +65,6 @@ func Decrypt(data, key []byte) (ret []byte, err error) {
 	return ret, nil
 }
 
-func LoadPrimaryKey(password string) ([]byte, error) {
-	keyDir, err := common.InitKeyDir()
-	if err != nil {
-		return nil, err
-	}
-	keyPath := path.Join(keyDir, keyFile)
-	if !common.FileExists(keyPath) {
-		if err = savePrimaryKey(password); err != nil {
-			return nil, err
-		}
-	}
-
-	pkEnc, err := ioutil.ReadFile(keyPath)
-	if err != nil {
-		return nil, err
-	}
-
-	pk, err := Decrypt(pkEnc, []byte(password))
-	return pk, nil
-}
-
-func savePrimaryKey(password string) error {
-	keyDir, err := common.InitKeyDir()
-	if err != nil {
-		return err
-	}
-	keyPath := path.Join(keyDir, keyFile)
-
-	if common.FileExists(keyPath) {
-		return fmt.Errorf("Key File already exists!")
-	}
-
-	pk, err := CreateRandomyKey()
-	if err != nil {
-		return err
-	}
-
-	pkEnc, err := Encrypt(pk, []byte{})
-	if err != nil {
-		return err
-	}
-
-	err = ioutil.WriteFile(keyPath, pkEnc, 0666)
-	return err
-}
-
 func createGcm(key []byte) (gcm cipher.AEAD, err error) {
 	var c cipher.Block
 	if c, err = aes.NewCipher(key); err != nil {
@@ -116,4 +72,20 @@ func createGcm(key []byte) (gcm cipher.AEAD, err error) {
 	}
 	gcm, err = cipher.NewGCM(c)
 	return
+}
+
+func GetMacAddr() (string, error) {
+	// Credits to mattn from stackoverflow
+	ifas, err := net.Interfaces()
+	if err != nil {
+		return "", err
+	}
+	var as string
+	for _, ifa := range ifas {
+		a := ifa.HardwareAddr.String()
+		if a != "" {
+			as += a
+		}
+	}
+	return as, nil
 }
