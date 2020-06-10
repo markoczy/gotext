@@ -101,6 +101,26 @@ SELECT * FROM table WHERE id="99424"
 ...
 ```
 
+## Feature Updates
+
+### Encryption
+
+#### Quicksave Encryption (V1.1.0)
+
+Since Version 1.1.0 of Gotext, everything that is stored in the user folder (command `quicksave`) is encrypted by default. The key that is used is composed from machine and user specific data. This feature is integrated seamlessly in the `quicksave` and `quickload` command and is therefore invisible.
+
+The commands `save` and `load` are not affected by this, an optional password encryption will be implemented in future releases.
+
+#### Clipboard password Encryption (V1.1.0)
+
+The new Commands `encrypt` and `decrypt` can be used to encrypt/decrypt the data in the clipboard with a given password. If the optional second parameter is provided, it will be used as password, otherwise the terminal asks to enter password.
+
+#### Optional password Encryption (V1.1.0)
+
+The commands `quicksave` and `quickload` now support the command switch `-p`. When provided, the terminal asks for a password to encrypt the data. An optional third parameter can be provided as a password, otherwise the terminal asks for a password.
+
+> The command switch must be provided as second parameter and the password as third parameter.
+
 ## Deployment
 
 ### Windows
