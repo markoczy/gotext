@@ -9,7 +9,7 @@ import (
 	"github.com/markoczy/goutil/log"
 )
 
-const Version = "1.1.0"
+const Version = "1.1.1"
 
 var cmdParser = initParser()
 
