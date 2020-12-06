@@ -238,7 +238,7 @@ func trimEnd(s []string) (interface{}, error) {
 	log.Debug("Entry trimEnd")
 	split, sep := common.Split(s[2])
 	strs := common.MapArray(split, func(e string) string {
-		var idx = strings.Index(e, s[1])
+		var idx = strings.LastIndex(e, s[1])
 		if idx > -1 {
 			return e[:idx]
 		} else {
