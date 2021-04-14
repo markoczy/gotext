@@ -134,4 +134,4 @@ commands like `tt u` (Uppercase), `tt sort` (Sort Lines) or else.
 
 ## License
 
-Public Domain
+WTFPL
