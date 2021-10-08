@@ -119,3 +119,12 @@ func trySplit(s string, separator string) ([]string, bool) {
 	}
 	return split, success
 }
+
+func AnyMatch(arr []interface{}, val interface{}) bool {
+	for _, v := range arr {
+		if v == val {
+			return true
+		}
+	}
+	return false
+}

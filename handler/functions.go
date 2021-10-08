@@ -154,6 +154,22 @@ func login(s []string) (interface{}, error) {
 	return strings.ToLower(s[1]), nil
 }
 
+func toAllCapsSnakeCase(s []string) (interface{}, error) {
+	split, sep := common.Split(s[1])
+	rx := regexp.MustCompile("[A-Z]")
+	strs := common.MapArray(split, func(line string) string {
+		out := ""
+		for i, r := range line {
+			if i != 0 && rx.Match([]byte(string(r))) {
+				out += "_"
+			}
+			out += strings.ToUpper(string(r))
+		}
+		return out
+	})
+	return strings.Join(strs, sep), nil
+}
+
 //*** Double Var Commands (Clipboard = s[2]) ***//
 
 func filter(s []string) (interface{}, error) {

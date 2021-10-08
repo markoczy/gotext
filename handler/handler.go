@@ -9,7 +9,7 @@ import (
 	"github.com/markoczy/goutil/log"
 )
 
-const Version = "1.1.1"
+const Version = "1.1.2"
 
 var cmdParser = initParser()
 
@@ -57,6 +57,7 @@ func initParser() parser.Parser {
 	cli.AddCommand(parser, "Remove Duplicates", 1, "^((rd)|(remdup)|(nodup))$", 1, removeDuplicates)
 	cli.AddCommand(parser, "ROT 13", 1, "^((rot13)|(r13)|(13))$", 1, rot13)
 	cli.AddCommand(parser, "Purge", 1, "^(purge)$", -1, purge)
+	cli.AddCommand(parser, "To ALL_CAPS", 1, "^(ac)$", 1, toAllCapsSnakeCase)
 
 	// Double
 	cli.AddCommand(parser, "Filter", 1, "^((f)|(filter))$", 2, filter)
@@ -104,6 +105,7 @@ func showHelp() {
 	fmt.Println("* l                : lowercase")
 	fmt.Println("* c                : Clear formatting")
 	fmt.Println("* i                : Invert line order")
+	fmt.Println("* ac               : CamelCase to ALL_CAPS")
 	fmt.Println("* paste            : Paste text to console (use with \">\")")
 	fmt.Println("* sort             : Sort (alt: 'o')")
 	fmt.Println("* rdup             : remove all duplicates (alt: 'rd')")
